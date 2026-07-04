@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>一橋ゴルフ部1年 ラウンド記録</title>
+<style>
+  :root{
+    --pine:#17402F;
+    --pine-soft:#215943;
+    --fairway:#EEF2EB;
+    --card:#FFFFFF;
+    --ink:#1C2620;
+    --muted:#68796E;
+    --line:#DCE4DA;
+    --flag:#C8402E;
+    --gold:#C9A227;
+    --silver:#9AA5AD;
+    --bronze:#B07B4F;
+    --radius:14px;
+    --nav-h:64px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+    background:var(--fairway);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1.6;
+  }
+  .num{
+    font-family:Georgia,"Times New Roman",serif;
+    font-variant-numeric:tabular-nums;
+    letter-spacing:.01em;
+  }
+
+  /* ===== ヘッダー ===== */
+  header{
+    background:var(--pine);
+    color:#fff;
+    padding:14px 16px 12px;
+    position:sticky;top:0;z-index:20;
+  }
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .brand h1{font-size:16px;font-weight:700;letter-spacing:.04em}
+  .brand .sub{font-size:11px;opacity:.75;letter-spacing:.14em}
+  .me-chip{
+    display:flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:999px;padding:4px 10px;
+    font-size:12px;color:#fff;cursor:pointer;
+    max-width:45%;
+  }
+  .me-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ===== 画面共通 ===== */
+  main{
+    padding:16px 16px calc(var(--nav-h) + 24px);
+    max-width:560px;margin:0 auto;
+  }
+  .screen{display:none}
+  .screen.active{display:block}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:12px;
+  }
+  .section-title{
+    font-size:12px;font-weight:700;color:var(--muted);
+    letter-spacing:.14em;margin:4px 2px 10px;
+  }
+  .empty{
+    text-align:center;color:var(--muted);
+    padding:36px 12px;font-size:13px;
+  }
+  .empty strong{display:block;font-size:15px;color:var(--ink);margin-bottom:6px}
+
+  /* ===== ボタン・フォーム ===== */
+  button{font-family:inherit;cursor:pointer;border:none;background:none;font-size:inherit}
+  .btn{
+    display:block;width:100%;
+    background:var(--pine);color:#fff;
+    border-radius:12px;padding:14px;
+    font-size:15px;font-weight:700;
+  }
+  .btn:active{background:var(--pine-soft)}
+  .btn.ghost{
+    background:#fff;color:var(--pine);
+    border:1.5px solid var(--pine);
+  }
+  .btn.danger{background:#fff;color:var(--flag);border:1.5px solid var(--flag)}
+  .btn[disabled]{opacity:.45}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:14px 2px 6px}
+  input[type=text],input[type=number],input[type=date],textarea{
+    width:100%;font-family:inherit;font-size:16px;
+    border:1.5px solid var(--line);border-radius:10px;
+    padding:12px;background:#fff;color:var(--ink);
+  }
+  input:focus,textarea:focus{outline:2px solid var(--pine);outline-offset:1px;border-color:var(--pine)}
+  .seg{display:flex;gap:8px}
+  .seg button{
+    flex:1;padding:11px;border-radius:10px;
+    border:1.5px solid var(--line);background:#fff;
+    font-weight:700;color:var(--muted);font-size:14px;
+  }
+  .seg button.on{border-color:var(--pine);background:var(--pine);color:#fff}
+  .seg.mini button{padding:8px;font-size:13px;border-radius:999px}
+  .form-msg{font-size:12px;color:var(--flag);margin-top:10px;min-height:1em}
+
+  /* ===== ログイン/新規作成 ===== */
+  #screen-auth .hero{text-align:center;padding:28px 8px 20px}
+  #screen-auth .hero .flagmark{margin-bottom:10px}
+  #screen-auth .hero h2{font-size:19px;letter-spacing:.02em}
+  #screen-auth .hero p{font-size:12px;color:var(--muted);margin-top:4px}
+  .account-pick{
+    display:flex;align-items:center;justify-content:space-between;
+    width:100%;text-align:left;
+    padding:14px 12px;border-bottom:1px solid var(--line);
+  }
+  .account-pick:last-child{border-bottom:none}
+  .account-pick .nm{font-weight:700}
+  .account-pick .gd{font-size:11px;color:var(--muted)}
+  .account-pick .arrow{color:var(--pine);font-weight:700}
+  .id-input{
+    text-transform:uppercase;letter-spacing:.2em;text-align:center;
+    font-family:Georgia,serif;font-weight:700;
+  }
+  .divider{
+    display:flex;align-items:center;gap:10px;
+    color:var(--muted);font-size:11px;margin:16px 0;
+  }
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ===== マイIDカード ===== */
+  .myid-card{
+    background:var(--pine);color:#fff;border:none;
+    border-radius:var(--radius);padding:16px;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+  }
+  .myid-card .lb{font-size:11px;opacity:.8;letter-spacing:.1em}
+  .myid-card .idv{
+    font-family:Georgia,serif;font-size:24px;font-weight:700;letter-spacing:.22em;
+  }
+  .myid-card .note{font-size:10.5px;opacity:.75;margin-top:2px}
+  .copy-btn{
+    flex:none;background:rgba(255,255,255,.16);color:#fff;
+    border:1px solid rgba(255,255,255,.3);border-radius:999px;
+    padding:7px 14px;font-size:12px;font-weight:700;
+  }
+
+  /* ===== 最新フィード ===== */
+  .feed-item{
+    display:flex;align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--line);
+    border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;
+  }
+  .feed-score{
+    min-width:64px;text-align:center;
+    border-right:1px dashed var(--line);padding-right:12px;
+  }
+  .feed-score .num{font-size:30px;font-weight:700;color:var(--pine);line-height:1.1}
+  .feed-score small{font-size:10px;color:var(--muted);letter-spacing:.1em}
+  .feed-body{flex:1;min-width:0}
+  .feed-body .msg{font-size:14px}
+  .feed-body .msg b{color:var(--pine)}
+  .feed-body .meta{font-size:11px;color:var(--muted);margin-top:2px}
+  .flagpin{color:var(--flag)}
+
+  /* ===== ランキング ===== */
+  .rank-meta{
+    font-size:11px;color:var(--muted);
+    margin:2px 2px 12px;line-height:1.7;
+  }
+  .rank-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 4px;border-bottom:1px solid var(--line);
+  }
+  .rank-row:last-child{border-bottom:none}
+  .rank-pos{
+    width:34px;height:34px;flex:none;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;
+    font-weight:700;font-size:15px;
+    background:var(--fairway);color:var(--muted);
+  }
+  .rank-pos.p1{background:var(--gold);color:#fff}
+  .rank-pos.p2{background:var(--silver);color:#fff}
+  .rank-pos.p3{background:var(--bronze);color:#fff}
+  .rank-name{flex:1;min-width:0}
+  .rank-name .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rank-name .ct{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rank-avg{text-align:right}
+  .rank-avg .num{font-size:22px;font-weight:700;color:var(--pine)}
+  .rank-avg small{font-size:10px;color:var(--muted);display:block;margin-top:-2px}
+
+  /* ===== 記録 ===== */
+  .rec-row{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 4px;border-bottom:1px solid var(--line);
+  }
+  .rec-row:last-child{border-bottom:none}
+  .rec-score{min-width:56px;text-align:center}
+  .rec-score .num{font-size:24px;font-weight:700;color:var(--pine)}
+  .rec-body{flex:1;min-width:0}
+  .rec-body .course{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rec-body .meta{font-size:11px;color:var(--muted)}
+  .rec-edit{
+    flex:none;font-size:12px;font-weight:700;color:var(--pine);
+    border:1.5px solid var(--pine);border-radius:999px;padding:5px 12px;
+  }
+  .best-badge{
+    display:inline-block;background:var(--flag);color:#fff;
+    font-size:9px;font-weight:700;border-radius:4px;
+    padding:1px 5px;margin-left:5px;vertical-align:2px;letter-spacing:.06em;
+  }
+
+  /* ===== モーダル ===== */
+  .sheet-wrap{
+    display:none;position:fixed;inset:0;z-index:40;
+    background:rgba(20,32,26,.45);
+  }
+  .sheet-wrap.open{display:flex;align-items:flex-end;justify-content:center}
+  .sheet{
+    background:#fff;width:100%;max-width:560px;
+    border-radius:18px 18px 0 0;
+    padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+    max-height:88vh;overflow-y:auto;
+  }
+  .sheet h3{font-size:16px;margin-bottom:2px}
+  .sheet .close-row{display:flex;justify-content:space-between;align-items:center}
+  .sheet .x{font-size:22px;color:var(--muted);padding:4px 8px}
+
+  /* ===== 下部ナビ ===== */
+  nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:30;
+    height:calc(var(--nav-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);
+    background:#fff;border-top:1px solid var(--line);
+    display:none;
+  }
+  nav.show{display:flex}
+  nav button{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    color:var(--muted);font-size:10.5px;font-weight:700;letter-spacing:.06em;
+  }
+  nav button.on{color:var(--pine)}
+  nav svg{width:23px;height:23px}
+
+  .toast{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(var(--nav-h) + 20px);
+    background:var(--pine);color:#fff;
+    padding:10px 18px;border-radius:999px;
+    font-size:13px;font-weight:700;z-index:50;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  .toast.show{opacity:1}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div>
+      <div class="sub">HITOTSUBASHI GOLF CLUB / 1年</div>
+      <h1>ラウンド記録帳</h1>
+    </div>
+    <button class="me-chip" id="meChip" style="display:none" aria-label="アカウント切替">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      <span id="meName"></span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ローディング -->
+  <div class="screen active" id="screen-loading">
+    <div class="empty"><strong>読み込み中…</strong>部のデータを取得しています</div>
+  </div>
+
+  <!-- ログイン / 新規作成 -->
+  <div class="screen" id="screen-auth">
+    <div class="hero">
+      <div class="flagmark">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+          <path d="M6 21V4" stroke="#17402F" stroke-width="2" stroke-linecap="round"/>
+          <path d="M6 4l10 3-10 3z" fill="#C8402E"/>
+          <circle cx="15" cy="19" r="2.4" fill="none" stroke="#17402F" stroke-width="1.6"/>
+        </svg>
+      </div>
+      <h2 id="authTitle">はじめまして!</h2>
+      <p id="authSub">ニックネームを登録してスタートしましょう</p>
+    </div>
+
+    <!-- 既存アカウントでログイン -->
+    <div id="pickBox" style="display:none">
+      <div class="section-title">ログインIDでログイン</div>
+      <div class="card">
+        <input type="text" id="loginIdInput" class="id-input" maxlength="6"
+               placeholder="例:7XKQ2M" autocomplete="off" autocapitalize="characters">
+        <div class="form-msg" id="loginMsg"></div>
+        <button class="btn" id="loginIdBtn" style="margin-top:6px">IDでログイン</button>
+      </div>
+      <div class="divider">または一覧から選ぶ</div>
+      <div class="card" style="padding:4px 12px" id="pickList"></div>
+      <button class="btn ghost" id="goSignup">新しいアカウントを作る</button>
+    </div>
+
+    <!-- 新規作成フォーム -->
+    <div id="signupBox" style="display:none">
+      <div class="card">
+        <label for="suName">ニックネーム</label>
+        <input type="text" id="suName" maxlength="12" placeholder="例:さとしょー" autocomplete="off">
+        <label>性別(ランキング集計用)</label>
+        <div class="seg" id="suGender">
+          <button type="button" data-g="M">男子</button>
+          <button type="button" data-g="F">女子</button>
+        </div>
+        <div class="form-msg" id="suMsg"></div>
+        <button class="btn" id="suBtn" style="margin-top:8px">この名前ではじめる</button>
+        <button class="btn ghost" id="backToPick" style="margin-top:10px;display:none">登録済みアカウントでログイン</button>
+      </div>
+      <div class="divider">またはIDではじめる</div>
+      <div class="card">
+        <label for="suIdInput" style="margin-top:0">発行済みのログインID</label>
+        <input type="text" id="suIdInput" class="id-input" maxlength="6"
+               placeholder="例:7XKQ2M" autocomplete="off" autocapitalize="characters">
+        <div class="form-msg" id="suIdMsg"></div>
+        <button class="btn ghost" id="suIdBtn" style="margin-top:6px">IDでログイン</button>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);padding:0 4px">
+        登録すると6桁のログインIDが発行されます。別のスマホやブラウザからはそのIDでログインできます。
+      </p>
+    </div>
+  </div>
+
+  <!-- タブ1:最新 -->
+  <div class="screen" id="screen-feed">
+    <div class="section-title">最新のラウンド</div>
+    <div id="feedList"></div>
+  </div>
+
+  <!-- タブ2:ランキング -->
+  <div class="screen" id="screen-rank">
+    <div class="section-title">部内ランキング</div>
+    <div class="rank-meta">記録が追加・編集されるたびに自動で更新されます</div>
+    <div class="seg" id="rankGender" style="margin-bottom:8px">
+      <button type="button" data-g="M" class="on">男子 TOP5</button>
+      <button type="button" data-g="F">女子 TOP5</button>
+    </div>
+    <div class="seg mini" id="rankMode" style="margin-bottom:12px">
+      <button type="button" data-m="avg" class="on">平均(直近3R)</button>
+      <button type="button" data-m="best">ベストスコア</button>
+    </div>
+    <div class="card" style="padding:4px 14px" id="rankList"></div>
+  </div>
+
+  <!-- タブ3:記録 -->
+  <div class="screen" id="screen-rec">
+    <div class="section-title">自分の記録</div>
+    <div class="myid-card">
+      <div>
+        <div class="lb">あなたのログインID</div>
+        <div class="idv" id="myIdView">------</div>
+        <div class="note">別のスマホ・ブラウザからはこのIDでログインできます</div>
+      </div>
+      <button class="copy-btn" id="copyIdBtn">コピー</button>
+    </div>
+    <button class="btn" id="addRecBtn" style="margin-bottom:12px">＋ ラウンドを追加する</button>
+    <div class="card" style="padding:4px 14px" id="recList"></div>
+    <button class="btn danger" id="switchBtn" style="margin-top:16px">アカウントを切り替える</button>
+  </div>
+</main>
+
+<!-- 追加/編集シート -->
+<div class="sheet-wrap" id="sheetWrap">
+  <div class="sheet">
+    <div class="close-row">
+      <h3 id="sheetTitle">ラウンドを追加</h3>
+      <button class="x" id="sheetClose" aria-label="閉じる">×</button>
+    </div>
+    <label for="fDate">プレー日</label>
+    <input type="date" id="fDate">
+    <label for="fCourse">コース名</label>
+    <input type="text" id="fCourse" maxlength="30" placeholder="例:小金井カントリー倶楽部">
+    <label for="fScore">スコア(18H合計)</label>
+    <input type="number" id="fScore" inputmode="numeric" min="54" max="200" placeholder="例:98">
+    <label for="fMemo">メモ(任意)</label>
+    <textarea id="fMemo" rows="2" maxlength="60" placeholder="例:ドライバー好調。パット34"></textarea>
+    <div class="form-msg" id="fMsg"></div>
+    <button class="btn" id="fSave" style="margin-top:8px">保存する</button>
+    <button class="btn danger" id="fDelete" style="margin-top:10px;display:none">この記録を削除する</button>
+  </div>
+</div>
+
+<!-- ID一覧シート(ニックネーム欄に「ID一覧」で表示) -->
+<div class="sheet-wrap" id="idListWrap">
+  <div class="sheet">
+    <div class="close-row">
+      <h3>登録アカウントとID一覧</h3>
+      <button class="x" id="idListClose" aria-label="閉じる">×</button>
+    </div>
+    <p style="font-size:11.5px;color:var(--muted);margin:4px 0 8px">
+      IDを忘れた部員はここから確認できます
+    </p>
+    <div id="idListBody"></div>
+  </div>
+</div>
+
+<nav id="nav">
+  <button data-tab="feed" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V5l12 4-12 4"/><circle cx="17" cy="18" r="2.5"/></svg>
+    最新
+  </button>
+  <button data-tab="rank">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M6 4h12v3a6 6 0 01-12 0z"/><path d="M6 6H3a3 3 0 003 3M18 6h3a3 3 0 01-3 3"/></svg>
+    ランキング
+  </button>
+  <button data-tab="rec">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
+    記録
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ================= データ層 =================
+     共有: golf-club-data … { accounts:[], rounds:[] } ※部員全員で共有
+     個人: golf-my-id     … 自分のアカウントID(自動ログイン用)      */
+  var DATA_KEY = 'golf-club-data';
+  var MY_KEY   = 'golf-my-id';
+  var state = { data:{accounts:[],rounds:[]}, me:null, tab:'feed', rankG:'M', rankM:'avg', editId:null };
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  /* 紛らわしい文字(I,O,0,1,L)を除いた6桁ログインID */
+  var ID_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  function genLoginId(existing){
+    var set = {};
+    existing.forEach(function(a){ if(a.loginId) set[a.loginId] = 1; });
+    for(var t=0;t<200;t++){
+      var s = '';
+      for(var i=0;i<6;i++) s += ID_CHARS[Math.floor(Math.random()*ID_CHARS.length)];
+      if(!set[s]) return s;
+    }
+    return 'X' + Date.now().toString(36).toUpperCase().slice(-5);
+  }
+
+  async function loadShared(){
+    try{
+      var r = await window.storage.get(DATA_KEY, true);
+      if(r && r.value){
+        var d = JSON.parse(r.value);
+        state.data = { accounts:d.accounts||[], rounds:d.rounds||[] };
+      }
+    }catch(e){ /* 未作成なら初期値のまま */ }
+    // v1データ移行:loginIdを持たない既存アカウントに自動付与
+    var migrated = false;
+    state.data.accounts.forEach(function(a){
+      if(!a.loginId){ a.loginId = genLoginId(state.data.accounts); migrated = true; }
+    });
+    if(migrated){ await saveShared(); }
+  }
+  async function saveShared(){
+    try{
+      await window.storage.set(DATA_KEY, JSON.stringify(state.data), true);
+      return true;
+    }catch(e){
+      showToast('保存できませんでした。通信を確認してください');
+      return false;
+    }
+  }
+  async function loadMyId(){
+    try{
+      var r = await window.storage.get(MY_KEY, false);
+      return r && r.value ? r.value : null;
+    }catch(e){ return null; }
+  }
+  async function saveMyId(id){
+    try{ await window.storage.set(MY_KEY, id, false); }catch(e){}
+  }
+  async function clearMyId(){
+    try{ await window.storage.delete(MY_KEY, false); }catch(e){}
+  }
+
+  /* ================= ユーティリティ ================= */
+  function $(s){ return document.querySelector(s); }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtDate(iso){
+    if(!iso) return '';
+    var p = iso.split('-');
+    return p[0] + '/' + Number(p[1]) + '/' + Number(p[2]);
+  }
+  function todayISO(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  var toastTimer = null;
+  function showToast(msg){
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+  }
+
+  /* ================= 画面切替 ================= */
+  function showScreen(id){
+    document.querySelectorAll('.screen').forEach(function(el){ el.classList.remove('active'); });
+    $('#screen-'+id).classList.add('active');
+  }
+  function showTab(tab){
+    state.tab = tab;
+    showScreen(tab);
+    document.querySelectorAll('nav button').forEach(function(b){
+      b.classList.toggle('on', b.dataset.tab === tab);
+    });
+    if(tab==='feed') renderFeed();
+    if(tab==='rank') renderRank();
+    if(tab==='rec')  renderRec();
+    window.scrollTo(0,0);
+  }
+
+  /* ================= 認証 ================= */
+  var suGenderVal = null;
+
+  function enterApp(){
+    $('#nav').classList.add('show');
+    $('#meChip').style.display = 'flex';
+    $('#meName').textContent = state.me.name;
+    showTab('feed');
+  }
+  function showAuth(){
+    $('#nav').classList.remove('show');
+    $('#meChip').style.display = 'none';
+    showScreen('auth');
+    $('#loginIdInput').value = '';
+    $('#loginMsg').textContent = '';
+    var has = state.data.accounts.length > 0;
+    if(has){
+      $('#authTitle').textContent = 'おかえりなさい!';
+      $('#authSub').textContent = 'ログインIDを入力するか、一覧から選んでください';
+      $('#pickBox').style.display = 'block';
+      $('#signupBox').style.display = 'none';
+      $('#backToPick').style.display = 'block';
+      renderPickList();
+    }else{
+      $('#authTitle').textContent = 'はじめまして!';
+      $('#authSub').textContent = 'ニックネームを登録してスタートしましょう';
+      $('#pickBox').style.display = 'none';
+      $('#signupBox').style.display = 'block';
+      $('#backToPick').style.display = 'none';
+    }
+  }
+  function loginAs(acc, msg){
+    state.me = acc;
+    saveMyId(acc.id);
+    showToast(msg || (acc.name + 'さんでログインしました'));
+    enterApp();
+  }
+  function renderPickList(){
+    var box = $('#pickList'); box.innerHTML = '';
+    state.data.accounts.slice().sort(function(a,b){ return a.name.localeCompare(b.name,'ja'); })
+      .forEach(function(a){
+        var b = document.createElement('button');
+        b.className = 'account-pick';
+        b.innerHTML = '<span><span class="nm">'+esc(a.name)+'</span> <span class="gd">'+(a.gender==='M'?'男子':'女子')+' / ID:'+esc(a.loginId||'------')+'</span></span><span class="arrow">→</span>';
+        b.addEventListener('click', function(){ loginAs(a); });
+        box.appendChild(b);
+      });
+  }
+
+  /* --- IDログイン(2箇所の入力欄で共通) --- */
+  async function tryIdLogin(inputSel, msgSel){
+    var v = $(inputSel).value.trim().toUpperCase();
+    var msg = $(msgSel);
+    if(v.length !== 6){ msg.textContent = 'IDは6桁です'; return; }
+    await loadShared(); // 別端末で作った直後のアカウントも拾えるように最新化
+    var acc = state.data.accounts.find(function(a){ return a.loginId === v; });
+    if(!acc){ msg.textContent = 'このIDのアカウントが見つかりません'; return; }
+    msg.textContent = '';
+    loginAs(acc);
+  }
+  function idInputFilter(){
+    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  }
+  $('#loginIdBtn').addEventListener('click', function(){ tryIdLogin('#loginIdInput','#loginMsg'); });
+  $('#loginIdInput').addEventListener('input', idInputFilter);
+  $('#suIdBtn').addEventListener('click', function(){ tryIdLogin('#suIdInput','#suIdMsg'); });
+  $('#suIdInput').addEventListener('input', idInputFilter);
+
+  /* --- ID一覧(隠しコマンド:ニックネーム欄に「ID一覧」) --- */
+  function openIdList(){
+    var box = $('#idListBody'); box.innerHTML = '';
+    if(state.data.accounts.length === 0){
+      box.innerHTML = '<div class="empty"><strong>アカウントがありません</strong></div>';
+    }else{
+      state.data.accounts.slice()
+        .sort(function(a,b){ return a.name.localeCompare(b.name,'ja'); })
+        .forEach(function(a){
+          var row = document.createElement('div');
+          row.className = 'rank-row';
+          row.innerHTML =
+            '<div class="rank-name"><div class="nm">'+esc(a.name)+'</div>' +
+            '<div class="ct">'+(a.gender==='M'?'男子':'女子')+'</div></div>' +
+            '<div class="rank-avg"><span class="num" style="font-size:18px;letter-spacing:.15em">'+esc(a.loginId||'------')+'</span><small>ログインID</small></div>';
+          box.appendChild(row);
+        });
+    }
+    $('#idListWrap').classList.add('open');
+  }
+  $('#idListClose').addEventListener('click', function(){ $('#idListWrap').classList.remove('open'); });
+  $('#idListWrap').addEventListener('click', function(e){ if(e.target === $('#idListWrap')) $('#idListWrap').classList.remove('open'); });
+
+  $('#goSignup').addEventListener('click', function(){
+    $('#pickBox').style.display = 'none';
+    $('#signupBox').style.display = 'block';
+    $('#backToPick').style.display = 'block';
+  });
+  $('#backToPick').addEventListener('click', function(){
+    $('#signupBox').style.display = 'none';
+    $('#pickBox').style.display = 'block';
+    renderPickList();
+  });
+  $('#suGender').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    suGenderVal = b.dataset.g;
+    document.querySelectorAll('#suGender button').forEach(function(x){ x.classList.toggle('on', x===b); });
+  });
+  $('#suBtn').addEventListener('click', async function(){
+    var name = $('#suName').value.trim();
+    var msg = $('#suMsg');
+    if(!name){ msg.textContent = 'ニックネームを入力してください'; return; }
+    if(name === 'ID一覧'){ // 隠しコマンド:全アカウントのIDを表示
+      msg.textContent = '';
+      $('#suName').value = '';
+      await loadShared();
+      openIdList();
+      return;
+    }
+    if(!suGenderVal){ msg.textContent = '性別を選んでください'; return; }
+    msg.textContent = '';
+    await loadShared(); // 直前の他人の更新を取り込む
+    if(state.data.accounts.some(function(a){ return a.name === name; })){
+      msg.textContent = 'その名前はすでに使われています。別の名前にしてください'; return;
+    }
+    var acc = {
+      id:uid(), name:name, gender:suGenderVal,
+      loginId:genLoginId(state.data.accounts),
+      createdAt:new Date().toISOString()
+    };
+    state.data.accounts.push(acc);
+    if(await saveShared()){
+      state.me = acc;
+      await saveMyId(acc.id);
+      showToast('ようこそ!あなたのIDは ' + acc.loginId + ' です');
+      enterApp();
+      showTab('rec'); // 発行されたIDをすぐ確認できるように記録タブへ
+    }
+  });
+
+  /* ================= タブ1:最新 ================= */
+  function renderFeed(){
+    var box = $('#feedList'); box.innerHTML = '';
+    var rounds = state.data.rounds.slice().sort(function(a,b){
+      return (b.date === a.date) ? (b.createdAt||'').localeCompare(a.createdAt||'') : b.date.localeCompare(a.date);
+    }).slice(0, 30);
+    if(rounds.length === 0){
+      box.innerHTML = '<div class="card empty"><strong>まだ記録がありません</strong>「記録」タブから最初のラウンドを追加しましょう</div>';
+      return;
+    }
+    var byId = {};
+    state.data.accounts.forEach(function(a){ byId[a.id] = a; });
+    rounds.forEach(function(r){
+      var who = byId[r.userId] ? byId[r.userId].name : '退部者';
+      var el = document.createElement('div');
+      el.className = 'feed-item';
+      el.innerHTML =
+        '<div class="feed-score"><div class="num">'+esc(r.score)+'</div><small>SCORE</small></div>' +
+        '<div class="feed-body">' +
+          '<div class="msg"><b>'+esc(who)+'</b>さんが<b>'+esc(r.course)+'</b>で<b>'+esc(r.score)+'</b>を出しました</div>' +
+          '<div class="meta"><span class="flagpin">⛳</span> '+fmtDate(r.date)+ (r.memo ? ' ・ '+esc(r.memo) : '') +'</div>' +
+        '</div>';
+      box.appendChild(el);
+    });
+  }
+
+  /* ================= タブ2:ランキング(随時更新) ================= */
+  function calcAvgRanking(gender){
+    // 全記録から各自の直近3ラウンド平均(昇順=良い)
+    var byId = {};
+    state.data.accounts.forEach(function(a){ if(a.gender===gender) byId[a.id] = {acc:a, rounds:[]}; });
+    state.data.rounds.forEach(function(r){
+      if(byId[r.userId]) byId[r.userId].rounds.push(r);
+    });
+    var rows = [];
+    Object.keys(byId).forEach(function(id){
+      var rs = byId[id].rounds.sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,3);
+      if(rs.length === 0) return;
+      var avg = rs.reduce(function(s,r){ return s + Number(r.score); }, 0) / rs.length;
+      rows.push({ name:byId[id].acc.name, value:avg.toFixed(1), sub:'直近'+rs.length+'ラウンド', sort:avg, unit:'平均スコア' });
+    });
+    rows.sort(function(a,b){ return a.sort - b.sort; });
+    return rows.slice(0,5);
+  }
+  function calcBestRanking(gender){
+    // 全記録から各自の自己ベスト(最小スコア)。同スコアは達成日が早い方を上位
+    var byId = {};
+    state.data.accounts.forEach(function(a){ if(a.gender===gender) byId[a.id] = {acc:a, best:null}; });
+    state.data.rounds.forEach(function(r){
+      var e = byId[r.userId]; if(!e) return;
+      var s = Number(r.score);
+      if(e.best === null || s < e.best.score || (s === e.best.score && r.date < e.best.date)){
+        e.best = { score:s, course:r.course, date:r.date };
+      }
+    });
+    var rows = [];
+    Object.keys(byId).forEach(function(id){
+      var e = byId[id]; if(!e.best) return;
+      rows.push({
+        name:e.acc.name, value:String(e.best.score),
+        sub:fmtDate(e.best.date)+' @ '+e.best.course,
+        sort:e.best.score, tie:e.best.date, unit:'ベストスコア'
+      });
+    });
+    rows.sort(function(a,b){ return (a.sort - b.sort) || a.tie.localeCompare(b.tie); });
+    return rows.slice(0,5);
+  }
+  function renderRank(){
+    var rows = state.rankM === 'best' ? calcBestRanking(state.rankG) : calcAvgRanking(state.rankG);
+    var box = $('#rankList'); box.innerHTML = '';
+    if(rows.length === 0){
+      box.innerHTML = '<div class="empty"><strong>ランクイン者なし</strong>記録が追加されるとここに表示されます</div>';
+      return;
+    }
+    rows.forEach(function(r, i){
+      var el = document.createElement('div');
+      el.className = 'rank-row';
+      el.innerHTML =
+        '<div class="rank-pos p'+(i+1)+'">'+(i+1)+'</div>' +
+        '<div class="rank-name"><div class="nm">'+esc(r.name)+'</div><div class="ct">'+esc(r.sub)+'</div></div>' +
+        '<div class="rank-avg"><span class="num">'+esc(r.value)+'</span><small>'+esc(r.unit)+'</small></div>';
+      box.appendChild(el);
+    });
+  }
+  $('#rankGender').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    state.rankG = b.dataset.g;
+    document.querySelectorAll('#rankGender button').forEach(function(x){ x.classList.toggle('on', x===b); });
+    renderRank();
+  });
+  $('#rankMode').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    state.rankM = b.dataset.m;
+    document.querySelectorAll('#rankMode button').forEach(function(x){ x.classList.toggle('on', x===b); });
+    renderRank();
+  });
+
+  /* ================= タブ3:記録 ================= */
+  function renderRec(){
+    $('#myIdView').textContent = state.me.loginId || '------';
+    var box = $('#recList'); box.innerHTML = '';
+    var mine = state.data.rounds.filter(function(r){ return r.userId === state.me.id; })
+      .sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(mine.length === 0){
+      box.innerHTML = '<div class="empty"><strong>記録はまだありません</strong>上のボタンから追加できます</div>';
+      return;
+    }
+    var best = Math.min.apply(null, mine.map(function(r){ return Number(r.score); }));
+    mine.forEach(function(r){
+      var el = document.createElement('div');
+      el.className = 'rec-row';
+      el.innerHTML =
+        '<div class="rec-score"><span class="num">'+esc(r.score)+'</span></div>' +
+        '<div class="rec-body"><div class="course">'+esc(r.course)+
+        (Number(r.score)===best ? '<span class="best-badge">BEST</span>' : '')+'</div>' +
+        '<div class="meta">'+fmtDate(r.date)+(r.memo?' ・ '+esc(r.memo):'')+'</div></div>' +
+        '<button class="rec-edit" data-id="'+r.id+'">編集</button>';
+      box.appendChild(el);
+    });
+  }
+  $('#recList').addEventListener('click', function(e){
+    var b = e.target.closest('.rec-edit'); if(!b) return;
+    openSheet(b.dataset.id);
+  });
+  $('#addRecBtn').addEventListener('click', function(){ openSheet(null); });
+
+  $('#copyIdBtn').addEventListener('click', function(){
+    var id = state.me && state.me.loginId ? state.me.loginId : '';
+    if(!id) return;
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(id).then(function(){ showToast('IDをコピーしました:' + id); },
+        function(){ showToast('あなたのID:' + id); });
+    }else{
+      showToast('あなたのID:' + id);
+    }
+  });
+
+  /* --- 追加/編集シート --- */
+  function openSheet(editId){
+    state.editId = editId;
+    $('#fMsg').textContent = '';
+    if(editId){
+      var r = state.data.rounds.find(function(x){ return x.id === editId; });
+      if(!r) return;
+      $('#sheetTitle').textContent = '記録を編集';
+      $('#fDate').value = r.date;
+      $('#fCourse').value = r.course;
+      $('#fScore').value = r.score;
+      $('#fMemo').value = r.memo || '';
+      $('#fDelete').style.display = 'block';
+    }else{
+      $('#sheetTitle').textContent = 'ラウンドを追加';
+      $('#fDate').value = todayISO();
+      $('#fCourse').value = '';
+      $('#fScore').value = '';
+      $('#fMemo').value = '';
+      $('#fDelete').style.display = 'none';
+    }
+    $('#sheetWrap').classList.add('open');
+  }
+  function closeSheet(){ $('#sheetWrap').classList.remove('open'); }
+  $('#sheetClose').addEventListener('click', closeSheet);
+  $('#sheetWrap').addEventListener('click', function(e){ if(e.target === $('#sheetWrap')) closeSheet(); });
+
+  $('#fSave').addEventListener('click', async function(){
+    var date = $('#fDate').value;
+    var course = $('#fCourse').value.trim();
+    var score = Number($('#fScore').value);
+    var memo = $('#fMemo').value.trim();
+    var msg = $('#fMsg');
+    if(!date){ msg.textContent = 'プレー日を入力してください'; return; }
+    if(date > todayISO()){ msg.textContent = '未来の日付は登録できません'; return; }
+    if(!course){ msg.textContent = 'コース名を入力してください'; return; }
+    if(!score || score < 54 || score > 200){ msg.textContent = 'スコアは54〜200の範囲で入力してください'; return; }
+    msg.textContent = '';
+    $('#fSave').disabled = true;
+
+    await loadShared(); // 最新を取り込んでから書く
+    if(state.editId){
+      var r = state.data.rounds.find(function(x){ return x.id === state.editId; });
+      if(r){ r.date = date; r.course = course; r.score = score; r.memo = memo; }
+    }else{
+      state.data.rounds.push({
+        id:uid(), userId:state.me.id,
+        date:date, course:course, score:score, memo:memo,
+        createdAt:new Date().toISOString()
+      });
+    }
+    var ok = await saveShared();
+    $('#fSave').disabled = false;
+    if(ok){
+      closeSheet();
+      showToast(state.editId ? '記録を更新しました(ランキングに即反映)' : '記録を追加しました(ランキングに即反映)');
+      renderRec();
+    }
+  });
+
+  $('#fDelete').addEventListener('click', async function(){
+    if(!state.editId) return;
+    if(!confirm('この記録を削除しますか?')) return;
+    await loadShared();
+    state.data.rounds = state.data.rounds.filter(function(r){ return r.id !== state.editId; });
+    if(await saveShared()){
+      closeSheet();
+      showToast('記録を削除しました');
+      renderRec();
+    }
+  });
+
+  /* --- アカウント切替 --- */
+  async function switchAccount(){
+    await clearMyId();
+    state.me = null;
+    await loadShared();
+    showAuth();
+  }
+  $('#switchBtn').addEventListener('click', switchAccount);
+  $('#meChip').addEventListener('click', switchAccount);
+
+  /* ================= ナビ ================= */
+  $('#nav').addEventListener('click', async function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    await loadShared(); // タブ切替のたびに最新化(他部員の投稿を反映)
+    showTab(b.dataset.tab);
+  });
+
+  /* ================= 起動 ================= */
+  (async function init(){
+    await loadShared();
+    var myId = await loadMyId();
+    if(myId){
+      var me = state.data.accounts.find(function(a){ return a.id === myId; });
+      if(me){ state.me = me; enterApp(); return; }
+    }
+    showAuth();
+  })();
+})();
+</script>
+</body>
+</html>
